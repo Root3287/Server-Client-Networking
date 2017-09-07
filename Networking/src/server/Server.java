@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import packet.Packet;
@@ -37,10 +38,12 @@ public class Server{
 		this.port = port;
 	}
 	public void start(){
+		this.running = true;
 		this.receive = new Thread(()->listen(), "listen");
 		this.receive.start();
 	}
 	private void listen() {
+		System.out.println("Listenening on port " + this.port);
 		while(running){
 			DatagramPacket p = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 			try {
@@ -49,7 +52,15 @@ public class Server{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			receiveEvent.execute(new PacketReceiveEvent(new Packet()));
+			receiveEvent.execute(new PacketReceiveEvent(new Packet(p)));
+		}
+	}
+	public void send(String destAddress, int port, final byte[] data){
+		try {
+			socket.send(new DatagramPacket(data, data.length, InetAddress.getByName(destAddress), port));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	public void addReceiveListener(Listener l){

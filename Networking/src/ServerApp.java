@@ -1,20 +1,19 @@
-import packet.PacketReceiveEvent;
+import java.util.Scanner;
+
 import server.Server;
-import site.root3287.sudo2.events.Event;
-import site.root3287.sudo2.events.Listener;
 
 public class ServerApp {
 	public static void main(String[] args) {
 		Server s = new Server();
-		s.addReceiveListener(new Listener() {
-			
-			@Override
-			public boolean onEvent(Event e) {
-				if(new String(((PacketReceiveEvent) e).getPacket().dataToByteArray()).equalsIgnoreCase("ping")){
-					
-				}
-				return false;
-			}
-		});
+		s.start();
+		
+		Scanner scan = new Scanner(System.in);
+		String line = scan.nextLine();
+		while(!line.equalsIgnoreCase("quit")){
+			s.send("127.0.0.1", 
+					Integer.parseInt(line.split(":")[0]), 
+					line.split(":")[1].getBytes());
+		}
+		scan.close();
 	}
 }
